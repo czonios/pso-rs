@@ -1,18 +1,16 @@
 use rand::Rng; // 0.6.5
-use std::env;
 
 type Particle = Vec<f64>;
-type Population = Vec<Particle>;
+pub type Population = Vec<Particle>;
 
-// #[derive(Debug)]
 pub struct Model {
-    pub config: Config,
-    pub flat_dim: usize,
+    config: Config,
+    flat_dim: usize,
     pub population: Population,
     pub population_f_scores: Vec<f64>,
     pub x_best_index: usize,
     pub f_best: f64,
-    pub obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
+    obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
 }
 
 impl Model {
@@ -42,6 +40,10 @@ impl Model {
             obj_f: |p, dim, flat_dim| e_lj(p, dim, flat_dim),
         };
         model.get_f_values();
+        println!(
+            "initial population_f_scores: {:#?} ",
+            model.population_f_scores
+        );
         model
     }
 
@@ -62,21 +64,17 @@ impl Model {
         let mut f_best = self.population_f_scores[0];
         let mut x_best_index = 0;
         for (index, &score) in self.population_f_scores.iter().enumerate() {
-            if score < f_best {
+            if score < self.f_best {
                 f_best = score;
                 x_best_index = index;
             }
         }
         self.f_best = f_best;
         self.x_best_index = x_best_index;
-        println!(
-            "initial population_f_scores: {:#?} ",
-            self.population_f_scores
-        );
         self.population_f_scores.to_owned()
     }
 
-    fn get_error(&mut self) -> f64 {
+    pub fn get_error(&mut self) -> f64 {
         self.get_f_values();
         self.f_best
     }
@@ -84,21 +82,37 @@ impl Model {
 
 #[derive(Debug)]
 pub struct Config {
-    pub dimensions: Vec<usize>,
-    pub population_size: usize,
-    pub neighborhood_type: NeighborhoodType,
-    pub rho: usize,
-    pub alpha: f64,
-    pub c1: f64,
-    pub c2: f64,
+    dimensions: Vec<usize>,
+    population_size: usize,
+    neighborhood_type: NeighborhoodType,
+    rho: usize,
+    alpha: f64,
+    c1: f64,
+    c2: f64,
 }
 
 impl Config {
-    pub fn new(mut args: env::Args) -> Result<Config, &'static str> {
-        if args.len() < 7 {
-            return Err("Please specify all arguments");
-        }
-        args.next();
+    pub fn new(
+        dimensions: Vec<usize>,
+        population_size: usize,
+        neighborhood_type: &str,
+        rho: usize,
+        alpha: f64,
+        c1: f64,
+        c2: f64,
+    ) -> Result<Config, &'static str> {
+        let neighborhood_type = match neighborhood_type {
+            arg => match &arg.to_lowercase()[..] {
+                "lbest" => NeighborhoodType::Lbest,
+                "gbest" => NeighborhoodType::Gbest,
+                _ => return Err("Only `lbest` and `gbest` are valid neighborhood types"),
+            },
+        };
+        // param: mut args: env::Args
+        // if args.len() < 7 {
+        //     return Err("Please specify all arguments");
+        // }
+        // args.next();
         // let dimensions = match args.next() {
         //     Some(arg) => match arg.parse() {
         //         Ok(arg) => arg,
@@ -107,50 +121,50 @@ impl Config {
         //     None => return Err("Please specify dimensions of each particle"),
         // };
 
-        let population_size = match args.next() {
-            Some(arg) => match arg.parse() {
-                Ok(arg) => arg,
-                _ => return Err("Please specify population size"),
-            },
-            None => return Err("Please specify population size"),
-        };
-        let neighborhood_type = match args.next() {
-            Some(arg) => match &arg.to_lowercase()[..] {
-                "lbest" => NeighborhoodType::Lbest,
-                "gbest" => NeighborhoodType::Gbest,
-                _ => return Err("Only `lbest` and `gbest` are valid neighborhood types"),
-            },
-            None => return Err("Please specify neighborhood type"),
-        };
-        let rho = match args.next() {
-            Some(arg) => match arg.parse() {
-                Ok(arg) => arg,
-                _ => return Err("Please specify rho (number of neighbors on each side)"),
-            },
-            None => return Err("Please specify rho (number of neighbors on each side)"),
-        };
-        let alpha = match args.next() {
-            Some(arg) => match arg.parse() {
-                Ok(arg) => arg,
-                _ => return Err("Please specify alpha (max velocity parameter)"),
-            },
-            None => return Err("Please specify alpha (max velocity parameter)"),
-        };
-        let c1 = match args.next() {
-            Some(arg) => match arg.parse() {
-                Ok(arg) => arg,
-                _ => return Err("Please specify C1"),
-            },
-            None => return Err("Please specify C1"),
-        };
-        let c2 = match args.next() {
-            Some(arg) => match arg.parse() {
-                Ok(arg) => arg,
-                _ => return Err("Please specify C2"),
-            },
-            None => return Err("Please specify C2"),
-        };
-        let dimensions = vec![4, 3];
+        // let population_size = match args.next() {
+        //     Some(arg) => match arg.parse() {
+        //         Ok(arg) => arg,
+        //         _ => return Err("Please specify population size"),
+        //     },
+        //     None => return Err("Please specify population size"),
+        // };
+        // let neighborhood_type = match args.next() {
+        //     Some(arg) => match &arg.to_lowercase()[..] {
+        //         "lbest" => NeighborhoodType::Lbest,
+        //         "gbest" => NeighborhoodType::Gbest,
+        //         _ => return Err("Only `lbest` and `gbest` are valid neighborhood types"),
+        //     },
+        //     None => return Err("Please specify neighborhood type"),
+        // };
+        // let rho = match args.next() {
+        //     Some(arg) => match arg.parse() {
+        //         Ok(arg) => arg,
+        //         _ => return Err("Please specify rho (number of neighbors on each side)"),
+        //     },
+        //     None => return Err("Please specify rho (number of neighbors on each side)"),
+        // };
+        // let alpha = match args.next() {
+        //     Some(arg) => match arg.parse() {
+        //         Ok(arg) => arg,
+        //         _ => return Err("Please specify alpha (max velocity parameter)"),
+        //     },
+        //     None => return Err("Please specify alpha (max velocity parameter)"),
+        // };
+        // let c1 = match args.next() {
+        //     Some(arg) => match arg.parse() {
+        //         Ok(arg) => arg,
+        //         _ => return Err("Please specify C1"),
+        //     },
+        //     None => return Err("Please specify C1"),
+        // };
+        // let c2 = match args.next() {
+        //     Some(arg) => match arg.parse() {
+        //         Ok(arg) => arg,
+        //         _ => return Err("Please specify C2"),
+        //     },
+        //     None => return Err("Please specify C2"),
+        // };
+
         Ok(Config {
             dimensions,
             population_size,
@@ -180,18 +194,18 @@ fn v_ij(x_i: Particle, x_j: Particle, particle_dim: usize) -> f64 {
 }
 
 /// Get potential energy of a cluster of particles
-fn e_lj(particle: &Particle, _flat_dim: usize, particle_dim: &Vec<usize>) -> f64 {
+fn e_lj(particle: &Particle, _flat_dim: usize, particle_dims: &Vec<usize>) -> f64 {
     // reshape particle
 
     let mut sum = 0.0;
-    for i in 0..particle_dim[0] - 1 {
-        for j in (i + 1)..particle_dim[0] {
-            let true_i = i * particle_dim[1];
-            let true_j = j * particle_dim[1];
+    for i in 0..particle_dims[0] - 1 {
+        for j in (i + 1)..particle_dims[0] {
+            let true_i = i * particle_dims[1];
+            let true_j = j * particle_dims[1];
             sum += v_ij(
-                particle[true_i..true_i + particle_dim[1]].to_vec(),
-                particle[true_j..true_j + particle_dim[1]].to_vec(),
-                particle_dim[1],
+                particle[true_i..true_i + particle_dims[1]].to_vec(),
+                particle[true_j..true_j + particle_dims[1]].to_vec(),
+                particle_dims[1],
             );
         }
     }
@@ -202,4 +216,45 @@ fn e_lj(particle: &Particle, _flat_dim: usize, particle_dim: &Vec<usize>) -> f64
 pub enum NeighborhoodType {
     Lbest,
     Gbest,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_computes_correct_minimum() {
+        let dimensions = vec![4, 3];
+        let population_size = 1;
+        let neighborhood_type = NeighborhoodType::Lbest;
+        let rho = 1;
+        let alpha = 0.01;
+        let c1 = 0.01;
+        let c2 = 0.99;
+        let config = Config {
+            dimensions,
+            population_size,
+            neighborhood_type,
+            rho,
+            alpha,
+            c1,
+            c2,
+        };
+        let mut model = Model::new(config);
+
+        model.population[0][0] = -0.3616353090;
+        model.population[0][1] = 0.0439914505;
+        model.population[0][2] = 0.5828840628;
+        model.population[0][3] = 0.2505889242;
+        model.population[0][4] = 0.6193583398;
+        model.population[0][5] = -0.1614607010;
+        model.population[0][6] = -0.4082757926;
+        model.population[0][7] = -0.2212115329;
+        model.population[0][8] = -0.5067996704;
+        model.population[0][9] = 0.5193221773;
+        model.population[0][10] = -0.4421382574;
+        model.population[0][11] = 0.0853763087;
+
+        assert!(model.get_error() < -5.9999999);
+    }
 }

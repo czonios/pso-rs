@@ -1,22 +1,20 @@
 pub mod model;
 
-pub use model::Config;
-type Particle = Vec<f64>;
+pub use model::{Config, Population};
 
 use model::Model;
 use std::error::Error;
 
-pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
+pub fn run(config: Config) -> Result<Model, Box<dyn Error>> {
     // println!("Config: {:?}", config);
 
-    let _model = Model::new(config);
-    // println!("\n\nModel: {:?} ", model);
-
-    Ok(())
+    let model = Model::new(config);
+    Ok(model)
 }
 
 #[cfg(test)]
 mod tests {
+
     #[test]
     fn it_works() {
         assert_eq!(2 + 2, 4);
