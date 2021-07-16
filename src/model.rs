@@ -1,11 +1,13 @@
-use rand::Rng; // 0.6.5
+use rand::rngs::ThreadRng;
+use rand::Rng;
 
-type Particle = Vec<f64>;
+pub type Particle = Vec<f64>;
 pub type Population = Vec<Particle>;
 
 pub struct Model {
-    config: Config,
-    flat_dim: usize,
+    pub rng: ThreadRng,
+    pub config: Config,
+    pub flat_dim: usize,
     pub population: Population,
     pub population_f_scores: Vec<f64>,
     pub x_best_index: usize,
@@ -31,6 +33,7 @@ impl Model {
         }
         let population_f_scores = vec![0.0; config.population_size];
         let mut model = Model {
+            rng,
             config,
             flat_dim,
             population,
@@ -54,7 +57,7 @@ impl Model {
     ///
     /// Returns:
     ///    float[]: values of the objective function for the input clusters
-    fn get_f_values(&mut self) -> Vec<f64> {
+    pub fn get_f_values(&mut self) -> Vec<f64> {
         // find the objective function value for each member of the population
         for (i, particle) in self.population.iter().enumerate() {
             let f_score = (self.obj_f)(particle, self.flat_dim, &self.config.dimensions);
@@ -64,7 +67,7 @@ impl Model {
         let mut f_best = self.population_f_scores[0];
         let mut x_best_index = 0;
         for (index, &score) in self.population_f_scores.iter().enumerate() {
-            if score < self.f_best {
+            if score < f_best {
                 f_best = score;
                 x_best_index = index;
             }
@@ -82,13 +85,13 @@ impl Model {
 
 #[derive(Debug)]
 pub struct Config {
-    dimensions: Vec<usize>,
-    population_size: usize,
-    neighborhood_type: NeighborhoodType,
-    rho: usize,
-    alpha: f64,
-    c1: f64,
-    c2: f64,
+    pub dimensions: Vec<usize>,
+    pub population_size: usize,
+    pub neighborhood_type: NeighborhoodType,
+    pub rho: usize,
+    pub alpha: f64,
+    pub c1: f64,
+    pub c2: f64,
 }
 
 impl Config {
