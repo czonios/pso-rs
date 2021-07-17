@@ -2,12 +2,12 @@ use pso_rs::model::*;
 use std::process;
 
 fn main() {
-    let dimensions = vec![4, 3];
+    let dimensions = vec![20, 3];
     let population_size = 10;
     let neighborhood_type = NeighborhoodType::Lbest;
     let rho = 2;
     let alpha = 0.08;
-    let lr = 0.5;
+    let lr = 1.0;
     let c1 = 250.0;
     let c2 = 0.8;
     let bounds = (-2.5, 2.5);
