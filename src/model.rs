@@ -4,6 +4,9 @@ use std::fmt;
 pub type Particle = Vec<f64>;
 pub type Population = Vec<Particle>;
 
+/// Model struct
+///
+/// It takes in a `Config` instance and `fn` pointer to an objective function and defines a `run` method for running Particle Swarm Optimization.
 pub struct Model {
     pub config: Config,
     pub flat_dim: usize,
@@ -77,12 +80,14 @@ impl Model {
         self.population_f_scores.to_owned()
     }
 
-    pub fn get_error(&mut self) -> f64 {
-        self.get_f_values();
+    pub fn get_f_best(&self) -> f64 {
         self.f_best
     }
 }
 
+/// Configuration struct
+///
+/// Used to define model parameters
 #[derive(Debug)]
 pub struct Config {
     pub dimensions: Vec<usize>,
@@ -106,7 +111,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             dimensions: vec![2],
-            population_size: 10,
+            population_size: 1000,
             neighborhood_type: NeighborhoodType::Lbest,
             rho: 2,
             alpha: 0.1,

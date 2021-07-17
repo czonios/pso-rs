@@ -2,49 +2,80 @@ use pso_rs::model::*;
 use std::process;
 
 fn main() {
-    // r();
-    let dimensions = vec![20, 3];
-    let population_size = 10;
-    let neighborhood_type = NeighborhoodType::Lbest;
-    let rho = 2;
-    let alpha = 0.08;
-    let lr = 0.5;
-    let c1 = 250.0;
-    let c2 = 0.8;
-    let bounds = (-2.5, 2.5);
+    // let dimensions = vec![20, 3];
+    // let population_size = 10;
+    // let neighborhood_type = NeighborhoodType::Lbest;
+    // let rho = 2;
+    // let alpha = 0.08;
+    // let lr = 0.5;
+    // let c1 = 250.0;
+    // let c2 = 0.8;
+    // let bounds = (-2.5, 2.5);
+
+    // let config = Config {
+    //     dimensions,
+    //     population_size,
+    //     neighborhood_type,
+    //     rho,
+    //     alpha,
+    //     c1,
+    //     c2,
+    //     lr,
+    //     bounds,
+    //     ..Config::default()
+    // };
+
+    // match pso_rs::run(config, e_lj) {
+    //     Ok(mut pso) => {
+    //         use std::time::Instant;
+    //         let before = Instant::now();
+
+    //         pso.run(pso.model.config.dimensions[0] * 1e5 as usize, |f_best| {
+    //             f_best - (-77.177043) < 1e-4
+    //         });
+    //         println!("Elapsed time: {:.2?}", before.elapsed());
+    //         // pso.write_to_file("./").unwrap_or_else(|err| {
+    //         //     eprintln!("Problem writing trajectories: {}.", err);
+    //         //     process::exit(1);
+    //         // });
+    //         let mut model = pso.model;
+    //         println!("Model: {:?} ", model.get_error());
+    //     }
+    //     Err(e) => {
+    //         eprintln!("Could not construct PSO: {}", e);
+    //         process::exit(1);
+    //     }
+    // }
+
+    // define objective function (Rosenbrock)
+    fn objective_function(p: &Particle, _flat_dim: usize, _dimensions: &Vec<usize>) -> f64 {
+        // x = p[0], y = p[1]
+        (1.0 - p[0]).powf(2.0) + 100.0 * ((p[1] - p[0]).powf(2.0)).powf(2.0)
+    }
+
+    // define a termination condition
+    fn terminate(f_best: f64) -> bool {
+        f_best - (0.0) < 1e-6
+    }
 
     let config = Config {
-        dimensions,
-        population_size,
-        neighborhood_type,
-        rho,
-        alpha,
-        c1,
-        c2,
-        lr,
-        bounds,
+        dimensions: vec![2],
+        population_size: 1000,
+        bounds: (-5.0, 5.0),
         ..Config::default()
     };
 
-    match pso_rs::run(config, e_lj) {
-        Ok(mut pso) => {
-            use std::time::Instant;
-            let before = Instant::now();
+    // define maximum number of objective function computations
+    let t_max = 10000000;
 
-            pso.run(pso.model.config.dimensions[0] * 1e5 as usize, |f_best| {
-                f_best - (-77.177043) < 1e-4
-            });
-            println!("Elapsed time: {:.2?}", before.elapsed());
-            // pso.write_to_file("./").unwrap_or_else(|err| {
-            //     eprintln!("Problem writing trajectories: {}.", err);
-            //     process::exit(1);
-            // });
+    match pso_rs::run(config, objective_function) {
+        Ok(mut pso) => {
+            pso.run(t_max, terminate);
             let mut model = pso.model;
-            println!("Model: {:?} ", model.get_error());
+            println!("Model: {:?} ", model.get_f_best());
         }
         Err(e) => {
             eprintln!("Could not construct PSO: {}", e);
-            process::exit(1);
         }
     }
 }

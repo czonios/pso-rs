@@ -173,7 +173,7 @@ impl PSO {
         );
         let mut k = 0;
         let pop_size = self.model.config.population_size;
-        while k < t_max && !terminate(self.model.f_best) {
+        loop {
             // Update velocity and positions
             self.update_velocity_and_pos();
 
@@ -184,7 +184,10 @@ impl PSO {
             self.model.population = self.mut_population.clone();
             k += pop_size;
             bar.inc(pop_size as u64);
-            bar.set_message(format!("{:.4}", self.model.f_best));
+            bar.set_message(format!("{:.6}", self.model.f_best));
+            if k > t_max || terminate(self.model.f_best) {
+                break;
+            }
         }
 
         bar.finish_and_clear();
