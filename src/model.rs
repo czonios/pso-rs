@@ -18,6 +18,7 @@ pub struct Model {
 }
 
 impl Model {
+    /// Creates a new Model instance
     pub fn new(
         config: Config,
         obj_f: fn(p: &Particle, flat_dim: usize, dim: &Vec<usize>) -> f64,

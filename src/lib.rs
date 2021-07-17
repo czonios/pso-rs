@@ -14,14 +14,16 @@
 //! ```rust
 //! use pso_rs::*;
 //!
-//! // define objective function (Rosenbrock)
-//! fn objective_function(p: &Particle,
-//!                 _flat_dim: usize,
-//!                 _dimensions: &Vec<usize>)
-//!     -> f64 {
-//!     // x = p[0], y = p[1]
-//!     (1.0-p[0]).powf(2.0) + 100.0
-//!         * ((p[1]-p[0]).powf(2.0)).powf(2.0)
+//! // define objective function (d-dimensional Rosenbrock)
+//! fn objective_function(
+//!     p: &Particle,
+//!     _flat_dim: usize,
+//!     dimensions: &Vec<usize>
+//! ) -> f64 {
+//!     (0..dimensions[0] - 1).map(|i| {
+//!         100.0 * ((p[i+1]-p[i]).powf(2.0)).powf(2.0)
+//!             + (1.0-p[i]).powf(2.0)
+//!     }).sum()
 //! }
 //!
 //! // define a termination condition
@@ -40,9 +42,11 @@
 //!     ..Config::default()
 //! };
 //!
-//! let pso = pso_rs::run(config,
-//!                 objective_function,
-//!                 Some(terminate)).unwrap();
+//! let pso = pso_rs::run(
+//!     config,
+//!     objective_function,
+//!     Some(terminate)
+//! ).unwrap();
 //!     
 //! let model = pso.model;
 //! println!("Model: {:?} ", model.get_f_best());
@@ -58,9 +62,10 @@
 //! ```rust
 //! use pso_rs::*;
 //!
-//! fn reshape(particle: &Particle,
-//!         particle_dims: &Vec<usize>)
-//!     -> Vec<Vec<f64>> {
+//! fn reshape(
+//!     particle: &Particle,
+//!     particle_dims: &Vec<usize>
+//! ) -> Vec<Vec<f64>> {
 //!     let mut reshaped_cluster = vec![];
 //!     let mut i = 0;
 //!     for _ in 0..particle_dims[0] {
@@ -75,10 +80,11 @@
 //! }
 //!
 //! // used in the objective function
-//! fn objective_function(p: &Particle,
-//!                 _flat_dim: usize,
-//!                 dimensions: &Vec<usize>)
-//!     -> f64 {
+//! fn objective_function(
+//!     p: &Particle,
+//!     _flat_dim: usize,
+//!     dimensions: &Vec<usize>
+//! ) -> f64 {
 //!     let _reshaped_particle = reshape(p, dimensions);
 //!     /* Do stuff */
 //!     0.0
@@ -90,9 +96,12 @@
 //!     t_max: 1,
 //!     ..Config::default()
 //! };
-//! let pso = pso_rs::run(config,
-//!                     objective_function,
-//!                     None).unwrap();
+//!
+//! let pso = pso_rs::run(
+//!     config,
+//!     objective_function,
+//!     None
+//! ).unwrap();
 //!
 //! // somewhere in main(), after running PSO as in the example:
 //! println!(
@@ -121,13 +130,24 @@ pub fn run(
     obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
     terminate_f: Option<fn(f64) -> bool>,
 ) -> Result<PSO, Box<dyn Error>> {
-    let model = Model::new(config, obj_f);
-    let mut pso = PSO::new(model);
+    let mut pso = init(config, obj_f).unwrap();
     let term_condition = match terminate_f {
         Some(terminate_f) => terminate_f,
         None => |_| false,
     };
     pso.run(term_condition);
+    Ok(pso)
+}
+
+/// Initializes and returns a PSO instance without running the optimization process
+///
+/// Useful for initializing an instance for running at a later time
+pub fn init(
+    config: Config,
+    obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
+) -> Result<PSO, Box<dyn Error>> {
+    let model = Model::new(config, obj_f);
+    let pso = PSO::new(model);
     Ok(pso)
 }
 

@@ -6,6 +6,9 @@ use std::error::Error;
 use std::fs::File;
 use std::io::Write;
 
+/// PSO struct
+///
+/// contains methods for performing Particle Swarm Optimization
 pub struct PSO {
     chi: f64,
     v_max: f64,
@@ -90,12 +93,14 @@ impl PSO {
         }
     }
 
+    /// Returns the indices that would sort a vector
     fn argsort(v: &Vec<f64>) -> Vec<usize> {
         let mut idx = (0..v.len()).collect::<Vec<_>>();
         idx.sort_by(|&i, &j| v[i].partial_cmp(&v[j]).expect("NaN"));
         idx
     }
 
+    /// Returns the neighborhood local best
     fn local_best(&self, i: usize) -> usize {
         let best = PSO::argsort(&self.best_f_values);
         for b in best {
@@ -106,6 +111,7 @@ impl PSO {
         0
     }
 
+    /// Updates the velocity and position of each particle in the population
     fn update_velocity_and_pos(&mut self) {
         let mut rng = thread_rng();
 
@@ -144,6 +150,7 @@ impl PSO {
         }
     }
 
+    /// Updates the best found positions for each neighborhood as well as the global best
     fn update_best_positions(&mut self) {
         for i in 0..self.best_f_values.len() {
             let new = self.model.population_f_scores[i];
