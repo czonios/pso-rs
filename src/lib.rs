@@ -11,6 +11,8 @@
 //!
 //! # Examples
 //!
+//! ## Run PSO
+//!
 //! ```rust
 //! use pso_rs::*;
 //!
@@ -26,7 +28,7 @@
 //!     }).sum()
 //! }
 //!
-//! // define a termination condition
+//! // define a termination condition (optional)
 //! fn terminate(f_best: f64) -> bool {
 //!     f_best - (0.0) < 1e-4
 //! }
@@ -47,6 +49,43 @@
 //!     objective_function,
 //!     Some(terminate)
 //! ).unwrap();
+//!     
+//! let model = pso.model;
+//! println!("Model: {:?} ", model.get_f_best());
+//! ```
+//!
+//! ## Initialize PSO for later execution
+//!
+//! ```rust
+//! use pso_rs::*;
+//!
+//! // define objective function (d-dimensional Rosenbrock)
+//! fn objective_function(
+//!     p: &Particle,
+//!     _flat_dim: usize,
+//!     dimensions: &Vec<usize>
+//! ) -> f64 {
+//!     (0..dimensions[0] - 1).map(|i| {
+//!         100.0 * ((p[i+1]-p[i]).powf(2.0)).powf(2.0)
+//!             + (1.0-p[i]).powf(2.0)
+//!     }).sum()
+//! }
+//!
+//!
+//! let config = Config {
+//!     dimensions: vec![2],
+//!     bounds: (-5.0, 10.0),
+//!     t_max: 10000,
+//!     ..Config::default()
+//! };
+//!
+//! let mut pso = pso_rs::init(
+//!     config,
+//!     objective_function
+//! ).unwrap();
+//!
+//! // run PSO with no termination condition
+//! pso.run(|_| false);
 //!     
 //! let model = pso.model;
 //! println!("Model: {:?} ", model.get_f_best());
