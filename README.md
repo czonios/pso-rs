@@ -1,4 +1,7 @@
-﻿# pso-rs
+﻿![Crates.io](https://img.shields.io/crates/v/pso_rs)
+![docs.rs](https://img.shields.io/docsrs/pso-rs)
+
+# pso-rs
 
 An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust.
 
