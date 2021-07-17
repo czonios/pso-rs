@@ -20,6 +20,7 @@ pub struct PSO {
 }
 
 impl PSO {
+    /// Initialize Particle Swarm Optimization
     pub fn new(model: Model) -> PSO {
         let phi = model.config.c1 + model.config.c2;
         let phi_squared = phi.powf(2.0);
@@ -162,9 +163,11 @@ impl PSO {
         self.best_x_trajectory.push(self.model.x_best.clone());
     }
 
-    /// PANICS
+    /// Performs Particle Swarm Optimization
     ///
-    /// When a coefficient of a particle becomes NaN (usually due to bad params)
+    /// # Panics
+    ///
+    /// Panics if any particle coefficient becomes NaN
     pub fn run(&mut self, t_max: usize, terminate: fn(f64) -> bool) -> usize {
         let bar = ProgressBar::new(t_max as u64);
         bar.set_style(
@@ -194,16 +197,24 @@ impl PSO {
         k
     }
 
-    pub fn write_to_file(&self, filepath: &str) -> Result<(), Box<dyn Error>> {
+    /// Writes the best found objective function value for all iterations separated by newline characters
+    pub fn write_f_to_file(&self, filepath: &str) -> Result<(), Box<dyn Error>> {
         let best_f_str: Vec<String> = self
             .best_f_trajectory
             .iter()
             .map(|n| n.to_string())
             .collect();
 
-        let mut file = File::create(format!("{}/{}", filepath, "best_f_trajectory.txt"))?;
+        let mut file = File::create(filepath)?;
         writeln!(file, "{}", best_f_str.join("\n"))?;
 
+        Ok(())
+    }
+
+    /// Writes the best found minimizer for all iterations
+    ///
+    /// Vector coefficients are comma-separated, and the best vector at each iteration is terminated with a newline character
+    pub fn write_x_to_file(&self, filepath: &str) -> Result<(), Box<dyn Error>> {
         let best_x_str: Vec<String> = self
             .best_x_trajectory
             .iter()
@@ -215,47 +226,9 @@ impl PSO {
             })
             .collect();
 
-        let mut file = File::create(format!("{}/{}", filepath, "best_x_trajectory.txt"))?;
+        let mut file = File::create(filepath)?;
         writeln!(file, "{}", best_x_str.join("\n"))?;
 
         Ok(())
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works_for_lennard_james_potential_energy() {
-        let dimensions = vec![4, 3];
-        let population_size = 10;
-        let neighborhood_type = NeighborhoodType::Lbest;
-        let rho = 2;
-        let alpha = 0.08;
-        let lr = 0.5;
-        let c1 = 250.0;
-        let c2 = 0.8;
-
-        let config = Config {
-            dimensions,
-            population_size,
-            neighborhood_type,
-            rho,
-            alpha,
-            c1,
-            c2,
-            lr,
-            ..Config::default()
-        };
-
-        let model = Model::new(config);
-        let mut pso = PSO::new(model);
-        pso.run(pso.model.config.dimensions[0] * 100, |f_best| {
-            f_best - (-6.0) < 1e-4
-        });
-        let mut model = pso.model;
-
-        assert!(model.get_error().is_finite());
     }
 }

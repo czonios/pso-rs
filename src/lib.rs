@@ -3,7 +3,7 @@
 //! It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation.
 //!
 //! The [example](#examples) below can get you started.
-//! In order to use it on your own optimization problem, you will need to define an objective function as it is defined in the [run](fn.run.html) function, and a [`Config`](model/struct.Config.html) object.
+//! In order to use it on your own optimization problem, you will need to define an objective function as it is defined in the [run](fn.run.html) function, and a [`Config`](model/struct.Config.html) object. See the [Notes](#notes) section for more tips.
 //!
 //! # Examples
 //!
@@ -39,6 +39,53 @@
 //!     Err(e) => {
 //!         eprintln!("Could not construct PSO: {}", e);
 //!     }
+//! }
+//! ```
+//!
+//! # Notes
+//!
+//! Even though you can have particles of any shape and size, as long as each item is `f64`, `pso_rs` represents each particle as a flat vector: `Vec<f64>`.
+//!
+//! This means that, for example, in order to find clusters of 20 molecules in 3D space that minimize the [Lennard-Jones potential energy](https://en.wikipedia.org/wiki/Lennard-Jones_potential), you can define `dimensions` as (20, 3):
+//! ```rust
+//! let config = Config {
+//!     dimensions: vec![20, 3],
+//!     bounds: (-5.0, 5.0),
+//!     ..Config::default()
+//! };
+//! ```
+//!
+//! If you want, you can also create a custom `reshape` function, like this one for molecule clusters below:
+//!
+//! ```rust
+//! fn reshape(particle: &Particle, particle_dims: &Vec<usize>) -> Vec<Vec<f64>> {
+//!     let mut reshaped_population = vec![];
+//!     let mut i = 0;
+//!     for _ in 0..particle_dims[0] {
+//!         let mut reshaped_particle = vec![];
+//!         for _ in 0..particle_dims[1] {
+//!             reshaped_particle.push(particle[i]);
+//!             i += 1;
+//!         }
+//!         reshaped_population.push(reshaped_particle);
+//!     }
+//!     reshaped_population
+//! }
+//!```
+//!
+//! Then you can use that to reshape the particle at any point, for example to print the minimizer or to use in the objective function you have defined:
+//!
+//! ```rust
+//! // somewhere in main(), after running PSO as in the example:
+//! println!(
+//!     "Best found minimizer: {:#?} ",
+//!     reshape(&model.get_x_best(), &model.config.dimensions)
+//! );
+//!
+//! // used in the objective function
+//! fn objective_function(p: &Particle, flat_dim: usize, dimensions: &Vec<usize>) -> f64 {
+//!      let reshaped_particle = reshape(p, dimensions);
+//!     /* Do stuff */
 //! }
 //! ```
 

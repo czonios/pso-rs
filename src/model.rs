@@ -80,8 +80,14 @@ impl Model {
         self.population_f_scores.to_owned()
     }
 
+    /// Returns the best found objective function value
     pub fn get_f_best(&self) -> f64 {
         self.f_best
+    }
+
+    /// Returns the best found minimizer
+    pub fn get_x_best(&self) -> Particle {
+        self.x_best.clone()
     }
 }
 
