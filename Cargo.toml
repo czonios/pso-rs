@@ -10,3 +10,6 @@ edition = "2018"
 rand = "0.8.4"
 indicatif = "0.16.2"
 rayon = "1.5.1"
+
+# [profile.release]
+# debug = true
