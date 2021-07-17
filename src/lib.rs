@@ -15,9 +15,13 @@
 //! use pso_rs::model::*;
 //!
 //! // define objective function (Rosenbrock)
-//! fn objective_function(p: &Particle, _flat_dim: usize, _dimensions: &Vec<usize>) -> f64 {
+//! fn objective_function(p: &Particle,
+//!                 _flat_dim: usize,
+//!                 _dimensions: &Vec<usize>)
+//!     -> f64 {
 //!     // x = p[0], y = p[1]
-//!     (1.0-p[0]).powf(2.0) + 100.0 * ((p[1]-p[0]).powf(2.0)).powf(2.0)
+//!     (1.0-p[0]).powf(2.0) + 100.0
+//!         * ((p[1]-p[0]).powf(2.0)).powf(2.0)
 //! }
 //!
 //! // define a termination condition
@@ -26,13 +30,20 @@
 //! }
 //!
 //! let config = Config {
-//!     dimensions: vec![2],    // dimension shape of each particle
-//!     bounds: (-5.0, 10.0),   // problem bounds
-//!     t_max: 10000,           // maximum no. of objective function computations
-//!     ..Config::default()     // leave the rest of the params as default
+//!     // dimension shape of each particle
+//!     dimensions: vec![2],
+//!     // problem bounds in each dimension
+//!     bounds: (-5.0, 10.0),
+//!     // maximum no. of objective function computations
+//!     t_max: 10000,
+//!     // leave the rest of the params as default
+//!     ..Config::default()
 //! };
 //!
-//! let pso = pso_rs::run(config, objective_function, terminate).unwrap();
+//! let pso = pso_rs::run(config,
+//!                 objective_function,
+//!                 terminate).unwrap();
+//!     
 //! let model = pso.model;
 //! println!("Model: {:?} ", model.get_f_best());
 //! ```
@@ -47,16 +58,9 @@
 //! ```rust
 //! use pso_rs::model::*;
 //!
-//! let config = Config {
-//!     dimensions: vec![20, 3],
-//!     bounds: (-2.5, 2.5),
-//!     t_max: 1,
-//!     ..Config::default()
-//! };
-//!
-//! let pso = pso_rs::run(config, objective_function, |_| true).unwrap();
-//!
-//! fn reshape(particle: &Particle, particle_dims: &Vec<usize>) -> Vec<Vec<f64>> {
+//! fn reshape(particle: &Particle,
+//!         particle_dims: &Vec<usize>)
+//!     -> Vec<Vec<f64>> {
 //!     let mut reshaped_cluster = vec![];
 //!     let mut i = 0;
 //!     for _ in 0..particle_dims[0] {
@@ -70,18 +74,29 @@
 //!     reshaped_cluster
 //! }
 //!
+//! // used in the objective function
+//! fn objective_function(p: &Particle,
+//!                 _flat_dim: usize,
+//!                 dimensions: &Vec<usize>)
+//!     -> f64 {
+//!     let _reshaped_particle = reshape(p, dimensions);
+//!     /* Do stuff */
+//!     0.0
+//! }
+//!
+//! let config = Config {
+//!     dimensions: vec![20, 3],
+//!     bounds: (-2.5, 2.5),
+//!     t_max: 1,
+//!     ..Config::default()
+//! };
+//! let pso = pso_rs::run(config, objective_function, |_| true).unwrap();
+//!
 //! // somewhere in main(), after running PSO as in the example:
 //! println!(
 //!     "Best found minimizer: {:#?} ",
 //!     reshape(&pso.model.get_x_best(), &pso.model.config.dimensions)
 //! );
-//!
-//! // used in the objective function
-//! fn objective_function(p: &Particle, flat_dim: usize, dimensions: &Vec<usize>) -> f64 {
-//!      let reshaped_particle = reshape(p, dimensions);
-//!     /* Do stuff */
-//!     0.0
-//! }
 //! ```
 
 pub mod model;
