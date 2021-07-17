@@ -6,6 +6,7 @@ description = "An easy-to-use, simple Particle Swarm Optimization implementation
 edition = "2018"
 license = "MIT"
 repository = "https://github.com/czonios/pso-rs"
+homepage = "https://github.com/czonios/pso-rs"
 exclude = [
     "src/bin",
 ]

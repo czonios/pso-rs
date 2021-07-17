@@ -1,4 +1,4 @@
-//! An easy-to-use, simple Particle Swarm Optimization implementation in Rust
+//! An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust
 //!
 //! It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation.
 //!
