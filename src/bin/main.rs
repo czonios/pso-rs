@@ -93,15 +93,15 @@ fn e_lj(particle: &Particle, _flat_dim: usize, particle_dims: &Vec<usize>) -> f6
 
 fn reshape(particle: &Particle, particle_dims: &Vec<usize>) -> Vec<Vec<f64>> {
     // reshape particle
-    let mut reshaped_population = vec![];
+    let mut reshaped_cluster = vec![];
     let mut i = 0;
     for _ in 0..particle_dims[0] {
-        let mut reshaped_particle = vec![];
+        let mut reshaped_molecule = vec![];
         for _ in 0..particle_dims[1] {
-            reshaped_particle.push(particle[i]);
+            reshaped_molecule.push(particle[i]);
             i += 1;
         }
-        reshaped_population.push(reshaped_particle);
+        reshaped_cluster.push(reshaped_molecule);
     }
-    reshaped_population
+    reshaped_cluster
 }
