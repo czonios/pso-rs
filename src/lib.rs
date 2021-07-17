@@ -1,7 +1,8 @@
-//! An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust
+//! An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust.
 //!
-//! [![Crates.io](https://img.shields.io/crates/v/pso_rs)](https://crates.io/crates/pso-rs)
-//! [![docs.rs](https://img.shields.io/docsrs/pso-rs)](https://docs.rs/pso-rs/latest/pso_rs/)
+//! [![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge&logo=appveyor)](https://crates.io/crates/pso-rs)
+//! [![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge&logo=appveyor)](https://docs.rs/pso-rs/latest/pso_rs/)
+//! [![GitHub](https://img.shields.io/github/license/czonios/pso-rs)](https://github.com/czonios/pso-rs/blob/master/LICENSE?style=for-the-badge)
 //!
 //! It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation.
 //!
@@ -25,24 +26,15 @@
 //! }
 //!
 //! let config = Config {
-//!     dimensions: vec![2],
-//!     bounds: (-5.0, 5.0),
-//!     ..Config::default()
+//!     dimensions: vec![2],    // dimension shape of each particle
+//!     bounds: (-5.0, 10.0),   // problem bounds
+//!     t_max: 10000,           // maximum no. of objective function computations
+//!     ..Config::default()     // leave the rest of the params as default
 //! };
 //!
-//! // define maximum number of objective function computations
-//! let t_max = 10000;
-//!
-//! match pso_rs::run(config, objective_function) {
-//!     Ok(mut pso) => {
-//!         pso.run(t_max, terminate);
-//!         let mut model = pso.model;
-//!         println!("Model: {:?} ", model.get_f_best());
-//!     }
-//!     Err(e) => {
-//!         eprintln!("Could not construct PSO: {}", e);
-//!     }
-//! }
+//! let pso = pso_rs::run(config, objective_function, terminate).unwrap();
+//! let model = pso.model;
+//! println!("Model: {:?} ", model.get_f_best());
 //! ```
 //!
 //! # Notes
@@ -58,10 +50,11 @@
 //! let config = Config {
 //!     dimensions: vec![20, 3],
 //!     bounds: (-2.5, 2.5),
+//!     t_max: 1,
 //!     ..Config::default()
 //! };
 //!
-//! let pso = pso_rs::run(config, objective_function).unwrap();
+//! let pso = pso_rs::run(config, objective_function, |_| true).unwrap();
 //!
 //! fn reshape(particle: &Particle, particle_dims: &Vec<usize>) -> Vec<Vec<f64>> {
 //!     let mut reshaped_cluster = vec![];
@@ -108,9 +101,11 @@ use std::error::Error;
 pub fn run(
     config: Config,
     obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
+    terminate_f: fn(f64) -> bool,
 ) -> Result<PSO, Box<dyn Error>> {
     let model = Model::new(config, obj_f);
-    let pso = PSO::new(model);
+    let mut pso = PSO::new(model);
+    pso.run(terminate_f);
     Ok(pso)
 }
 

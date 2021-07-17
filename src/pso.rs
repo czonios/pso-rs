@@ -168,8 +168,8 @@ impl PSO {
     /// # Panics
     ///
     /// Panics if any particle coefficient becomes NaN
-    pub fn run(&mut self, t_max: usize, terminate: fn(f64) -> bool) -> usize {
-        let bar = ProgressBar::new(t_max as u64);
+    pub fn run(&mut self, terminate: fn(f64) -> bool) -> usize {
+        let bar = ProgressBar::new(self.model.config.t_max as u64);
         bar.set_style(
             ProgressStyle::default_bar()
                 .template("{msg} [{elapsed}] {bar:20.cyan/blue} {pos:>7}/{len:7} ETA: {eta}"),
@@ -188,7 +188,7 @@ impl PSO {
             k += pop_size;
             bar.inc(pop_size as u64);
             bar.set_message(format!("{:.6}", self.model.f_best));
-            if k > t_max || terminate(self.model.f_best) {
+            if k > self.model.config.t_max || terminate(self.model.f_best) {
                 break;
             }
         }

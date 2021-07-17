@@ -11,6 +11,7 @@ fn main() {
     let c1 = 250.0;
     let c2 = 0.8;
     let bounds = (-2.5, 2.5);
+    let t_max = dimensions[0] * 1e5 as usize;
 
     let config = Config {
         dimensions,
@@ -22,17 +23,13 @@ fn main() {
         c2,
         lr,
         bounds,
+        t_max,
         ..Config::default()
     };
-
-    match pso_rs::run(config, e_lj) {
-        Ok(mut pso) => {
-            use std::time::Instant;
-            let before = Instant::now();
-
-            pso.run(pso.model.config.dimensions[0] * 1e5 as usize, |f_best| {
-                f_best - (-77.177043) < 1e-4
-            });
+    use std::time::Instant;
+    let before = Instant::now();
+    match pso_rs::run(config, e_lj, |f_best| f_best - (-77.177043) < 1e-4) {
+        Ok(pso) => {
             println!("Elapsed time: {:.2?}", before.elapsed());
             pso.write_f_to_file("./best_f_trajectory.txt")
                 .unwrap_or_else(|err| {
@@ -46,10 +43,6 @@ fn main() {
                 });
             let model = pso.model;
             println!("Model: {:?} ", model.get_f_best());
-            // println!(
-            //     "Best found minimizer: {:#?} ",
-            //     reshape(&model.get_x_best(), &model.config.dimensions)
-            // );
         }
         Err(e) => {
             eprintln!("Could not construct PSO: {}", e);

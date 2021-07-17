@@ -10,7 +10,7 @@ fn it_computes_correct_minimum_rosenbrock() {
         dimensions: vec![2],
         ..Config::default()
     };
-    let pso = pso_rs::run(config, rosenbrock).unwrap();
+    let pso = pso_rs::run(config, rosenbrock, |_| true).unwrap();
 
     let mut model = pso.model;
 
@@ -21,6 +21,7 @@ fn it_computes_correct_minimum_rosenbrock() {
     assert_eq!(model.get_f_best(), 0.0);
 }
 
+#[test]
 fn it_computes_correct_minimum_e_lj() {
     /// Get Euclidian distance of two particles
     fn l2(x_i: Particle, x_j: Particle, particle_dim: usize) -> f64 {
@@ -58,7 +59,7 @@ fn it_computes_correct_minimum_e_lj() {
         ..Config::default()
     };
 
-    let pso = pso_rs::run(config, e_lj).unwrap();
+    let pso = pso_rs::run(config, e_lj, |_| true).unwrap();
 
     let mut model = pso.model;
 

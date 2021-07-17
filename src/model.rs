@@ -105,6 +105,7 @@ pub struct Config {
     pub c2: f64,
     pub lr: f64,
     pub bounds: (f64, f64),
+    pub t_max: usize,
 }
 
 impl Config {
@@ -125,6 +126,7 @@ impl Default for Config {
             c1: 2.05,
             c2: 2.05,
             bounds: (-1.0, 1.0),
+            t_max: 1000,
         }
     }
 }
