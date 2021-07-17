@@ -2,9 +2,9 @@
 
 An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust.
 
-[![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge&logo=appveyor)](https://crates.io/crates/pso-rs)
-[![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge&logo=appveyor)](https://docs.rs/pso-rs/latest/pso_rs/)
-[![GitHub](https://img.shields.io/github/license/czonios/pso-rs)](https://github.com/czonios/pso-rs/blob/master/LICENSE?style=for-the-badge)
+[![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge)](https://crates.io/crates/pso-rs)
+[![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge)](https://docs.rs/pso-rs/latest/pso_rs/)
+[![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE?style=for-the-badge)
 
 It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation.
 
