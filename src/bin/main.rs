@@ -2,13 +2,14 @@ use pso_rs::Config;
 use std::process;
 
 fn main() {
-    let dimensions = vec![4, 3];
-    let population_size = 2;
+    let dimensions = vec![20, 3];
+    let population_size = 10;
     let neighborhood_type = "lbest";
     let rho = 2;
-    let alpha = 0.01;
-    let c1 = 0.01;
-    let c2 = 0.99;
+    let alpha = 0.08;
+    let lr = 0.5;
+    let c1 = 250.0;
+    let c2 = 0.8;
 
     let config = Config::new(
         dimensions,
@@ -18,6 +19,7 @@ fn main() {
         alpha,
         c1,
         c2,
+        lr,
     )
     .unwrap_or_else(|err| {
         eprintln!("Problem parsing arguments: {}.", err);
@@ -26,7 +28,13 @@ fn main() {
 
     match pso_rs::run(config) {
         Ok(mut pso) => {
-            pso.run(20 /* 20 * 100000 */, |f_best| false);
+            pso.run(pso.model.config.dimensions[0] * 100000, |f_best| {
+                f_best - (-77.177043) < 1e-4
+            });
+            pso.write_to_file("./").unwrap_or_else(|err| {
+                eprintln!("Problem writing trajectories: {}.", err);
+                process::exit(1);
+            });
             let mut model = pso.model;
             // model.population[0][0] = -0.3616353090;
             // model.population[0][1] = 0.0439914505;

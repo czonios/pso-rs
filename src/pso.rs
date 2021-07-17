@@ -1,9 +1,11 @@
 use crate::model::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use rand::Rng;
+use std::error::Error;
+use std::fs::File;
+use std::io::Write;
 
 pub struct PSO {
-    phi: f64,
     chi: f64,
     v_max: f64,
     pub model: Model,
@@ -12,16 +14,19 @@ pub struct PSO {
     velocities: Population,
     neigh_population: Population,
     best_f_values: Vec<f64>,
+    best_f_trajectory: Vec<f64>,
+    best_x_trajectory: Vec<Particle>,
 }
 
 impl PSO {
     pub fn new(mut model: Model) -> PSO {
         let phi = model.config.c1 + model.config.c2;
-        let tmp = 2.0 - phi - (phi.powf(2.0) - (4.0 * phi));
+        let phi_squared = phi.powf(2.0);
+        let tmp = phi_squared - (4.0 * phi);
         let tmp = tmp.sqrt();
         let chi = 2.0 / (2.0 - phi - tmp).abs();
         let v_max = model.config.alpha * 5.0;
-        let mut neighborhoods = vec![];
+        let mut neighborhoods;
         match model.config.neighborhood_type {
             NeighborhoodType::Lbest => {
                 neighborhoods = vec![];
@@ -65,9 +70,10 @@ impl PSO {
 
         let best_f_values = model.population_f_scores.clone();
         let neigh_population = model.population.clone();
+        let best_f_trajectory = vec![model.f_best];
+        let best_x_trajectory = vec![model.x_best.clone()];
 
         PSO {
-            phi,
             chi,
             v_max,
             model,
@@ -76,6 +82,8 @@ impl PSO {
             velocities,
             best_f_values,
             neigh_population,
+            best_f_trajectory,
+            best_x_trajectory,
         }
     }
 
@@ -106,16 +114,16 @@ impl PSO {
                     * (self.neigh_population[i][j] - self.mut_population[i][j]);
 
                 let soc = self.model.config.c2 * r2 * (lbest[j] - self.mut_population[i][j]);
-
                 let v = self.chi * (self.velocities[i][j] + cog + soc);
+
                 // check bounds
                 self.velocities[i][j] = if v.abs() > self.v_max {
-                    v
-                } else {
                     v.signum() * self.v_max
+                } else {
+                    v
                 };
 
-                let x = self.mut_population[i][j] + self.velocities[i][j];
+                let x = self.mut_population[i][j] + self.model.config.lr * self.velocities[i][j];
                 // check bounds
                 if x > 2.5 {
                     self.mut_population[i][j] = 2.5; // TODO dynamic bounds from config
@@ -123,6 +131,9 @@ impl PSO {
                     self.mut_population[i][j] = -2.5; // TODO dynamic bounds from config
                 } else {
                     self.mut_population[i][j] = x;
+                }
+                if x.is_nan() {
+                    panic!("A coefficient became NaN!");
                 }
             }
         }
@@ -139,12 +150,17 @@ impl PSO {
                 // check if global best found
                 if new < self.model.f_best {
                     self.model.f_best = new;
-                    self.model.x_best_index = i;
+                    self.model.x_best = self.model.population[i].clone();
                 }
             }
         }
+        self.best_f_trajectory.push(self.model.f_best);
+        self.best_x_trajectory.push(self.model.x_best.clone());
     }
 
+    /// PANICS
+    ///
+    /// When a coefficient of a particle becomes NaN (usually due to bad params)
     pub fn run(&mut self, t_max: usize, terminate: fn(f64) -> bool) -> usize {
         let bar = ProgressBar::new(t_max as u64);
         bar.set_style(
@@ -159,10 +175,6 @@ impl PSO {
 
             // Evaluate & update best
             self.model.get_f_values();
-            println!(
-                "self.model.get_f_values(): {:#?} ",
-                self.model.get_f_values()
-            );
             self.update_best_positions();
 
             self.model.population = self.mut_population.clone();
@@ -171,7 +183,71 @@ impl PSO {
             bar.set_message(format!("{:.4}", self.model.f_best));
         }
 
-        bar.finish();
+        bar.finish_and_clear();
         k
+    }
+
+    pub fn write_to_file(&self, filepath: &str) -> Result<(), Box<dyn Error>> {
+        let best_f_str: Vec<String> = self
+            .best_f_trajectory
+            .iter()
+            .map(|n| n.to_string())
+            .collect();
+
+        let mut file = File::create(format!("{}/{}", filepath, "best_f_trajectory.txt"))?;
+        writeln!(file, "{}", best_f_str.join("\n"))?;
+
+        let best_x_str: Vec<String> = self
+            .best_x_trajectory
+            .iter()
+            .map(|x| {
+                x.iter()
+                    .map(|coef: &f64| coef.to_string())
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            })
+            .collect();
+
+        let mut file = File::create(format!("{}/{}", filepath, "best_x_trajectory.txt"))?;
+        writeln!(file, "{}", best_x_str.join("\n"))?;
+
+        Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn it_works_for_lennard_james_potential_energy() {
+        let dimensions = vec![4, 3];
+        let population_size = 10;
+        let neighborhood_type = "lbest";
+        let rho = 2;
+        let alpha = 0.08;
+        let lr = 0.5;
+        let c1 = 250.0;
+        let c2 = 0.8;
+        let config = Config::new(
+            dimensions,
+            population_size,
+            neighborhood_type,
+            rho,
+            alpha,
+            c1,
+            c2,
+            lr,
+        )
+        .unwrap();
+
+        let model = Model::new(config);
+        let mut pso = PSO::new(model);
+        pso.run(pso.model.config.dimensions[0] * 100, |f_best| {
+            f_best - (-6.0) < 1e-4
+        });
+        let mut model = pso.model;
+
+        assert!(model.get_error().is_finite());
     }
 }

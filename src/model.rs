@@ -10,7 +10,7 @@ pub struct Model {
     pub flat_dim: usize,
     pub population: Population,
     pub population_f_scores: Vec<f64>,
-    pub x_best_index: usize,
+    pub x_best: Particle,
     pub f_best: f64,
     obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
 }
@@ -32,21 +32,19 @@ impl Model {
             population.push(particle);
         }
         let population_f_scores = vec![0.0; config.population_size];
+        let x_best = population[0].clone();
+        let f_best = population_f_scores[0].clone();
         let mut model = Model {
             rng,
             config,
             flat_dim,
             population,
             population_f_scores,
-            x_best_index: 0,
-            f_best: 0.0,
+            x_best,
+            f_best,
             obj_f: |p, dim, flat_dim| e_lj(p, dim, flat_dim),
         };
         model.get_f_values();
-        println!(
-            "initial population_f_scores: {:#?} ",
-            model.population_f_scores
-        );
         model
     }
 
@@ -73,7 +71,7 @@ impl Model {
             }
         }
         self.f_best = f_best;
-        self.x_best_index = x_best_index;
+        self.x_best = self.population[x_best_index].clone();
         self.population_f_scores.to_owned()
     }
 
@@ -92,6 +90,7 @@ pub struct Config {
     pub alpha: f64,
     pub c1: f64,
     pub c2: f64,
+    pub lr: f64,
 }
 
 impl Config {
@@ -103,6 +102,7 @@ impl Config {
         alpha: f64,
         c1: f64,
         c2: f64,
+        lr: f64,
     ) -> Result<Config, &'static str> {
         let neighborhood_type = match neighborhood_type {
             arg => match &arg.to_lowercase()[..] {
@@ -176,6 +176,7 @@ impl Config {
             alpha,
             c1,
             c2,
+            lr,
         })
     }
 }
@@ -232,6 +233,7 @@ mod tests {
         let neighborhood_type = NeighborhoodType::Lbest;
         let rho = 1;
         let alpha = 0.01;
+        let lr = 0.5;
         let c1 = 0.01;
         let c2 = 0.99;
         let config = Config {
@@ -242,6 +244,7 @@ mod tests {
             alpha,
             c1,
             c2,
+            lr,
         };
         let mut model = Model::new(config);
 
