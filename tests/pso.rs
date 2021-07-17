@@ -1,4 +1,4 @@
-use pso_rs::model::*;
+use pso_rs::*;
 
 #[test]
 fn it_computes_correct_minimum_rosenbrock() {

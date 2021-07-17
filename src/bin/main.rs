@@ -1,4 +1,4 @@
-use pso_rs::model::*;
+use pso_rs::*;
 use std::process;
 
 fn main() {

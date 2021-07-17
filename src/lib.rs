@@ -12,7 +12,7 @@
 //! # Examples
 //!
 //! ```rust
-//! use pso_rs::model::*;
+//! use pso_rs::*;
 //!
 //! // define objective function (Rosenbrock)
 //! fn objective_function(p: &Particle,
@@ -56,7 +56,7 @@
 //! If you want, you can also create a custom `reshape` function, like this one for molecule clusters below:
 //!
 //! ```rust
-//! use pso_rs::model::*;
+//! use pso_rs::*;
 //!
 //! fn reshape(particle: &Particle,
 //!         particle_dims: &Vec<usize>)
@@ -105,7 +105,7 @@
 pub mod model;
 mod pso;
 
-pub use model::{Config, NeighborhoodType, Particle, Population};
+pub use model::*;
 
 use model::Model;
 use pso::PSO;

@@ -14,7 +14,7 @@ In order to use it on your own optimization problem, you will need to define an 
 ## Examples
 
 ```rust
-use pso_rs::model::*;
+use pso_rs::*;
 
 // define objective function (Rosenbrock)
 fn objective_function(p: &Particle,
@@ -58,7 +58,7 @@ This means that, for example, in order to find clusters of 20 molecules in 3D sp
 If you want, you can also create a custom `reshape` function, like this one for molecule clusters below:
 
 ```rust
-use pso_rs::model::*;
+use pso_rs::*;
 
 fn reshape(particle: &Particle,
         particle_dims: &Vec<usize>)
