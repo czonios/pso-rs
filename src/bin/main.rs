@@ -1,17 +1,19 @@
-use pso_rs::Config;
+use pso_rs::model::*;
 use std::process;
 
 fn main() {
+    // r();
     let dimensions = vec![20, 3];
     let population_size = 10;
-    let neighborhood_type = "lbest";
+    let neighborhood_type = NeighborhoodType::Lbest;
     let rho = 2;
     let alpha = 0.08;
     let lr = 0.5;
     let c1 = 250.0;
     let c2 = 0.8;
+    let bounds = (-2.5, 2.5);
 
-    let config = Config::new(
+    let config = Config {
         dimensions,
         population_size,
         neighborhood_type,
@@ -20,13 +22,11 @@ fn main() {
         c1,
         c2,
         lr,
-    )
-    .unwrap_or_else(|err| {
-        eprintln!("Problem parsing arguments: {}.", err);
-        process::exit(1);
-    });
+        bounds,
+        ..Config::default()
+    };
 
-    match pso_rs::run(config) {
+    match pso_rs::run(config, e_lj) {
         Ok(mut pso) => {
             use std::time::Instant;
             let before = Instant::now();
@@ -40,24 +40,46 @@ fn main() {
             //     process::exit(1);
             // });
             let mut model = pso.model;
-            // model.population[0][0] = -0.3616353090;
-            // model.population[0][1] = 0.0439914505;
-            // model.population[0][2] = 0.5828840628;
-            // model.population[0][3] = 0.2505889242;
-            // model.population[0][4] = 0.6193583398;
-            // model.population[0][5] = -0.1614607010;
-            // model.population[0][6] = -0.4082757926;
-            // model.population[0][7] = -0.2212115329;
-            // model.population[0][8] = -0.5067996704;
-            // model.population[0][9] = 0.5193221773;
-            // model.population[0][10] = -0.4421382574;
-            // model.population[0][11] = 0.0853763087;
-            // println!("Population: {:#?} ", model.population);
             println!("Model: {:?} ", model.get_error());
         }
         Err(e) => {
-            eprintln!("Application error: {}", e);
+            eprintln!("Could not construct PSO: {}", e);
             process::exit(1);
         }
     }
+}
+
+/// Get Euclidian distance of two particles
+fn l2(x_i: Particle, x_j: Particle, particle_dim: usize) -> f64 {
+    // calculated as the square root of the sum of the squared vector values
+    let mut sum: f64 = 0.0;
+    for i in 0..particle_dim {
+        sum += (x_i[i] - x_j[i]).powf(2.0);
+    }
+    sum.sqrt()
+}
+
+/// Get potential energy of two particles
+fn v_ij(x_i: Particle, x_j: Particle, particle_dim: usize) -> f64 {
+    let denom: f64 = 1.0 / l2(x_i, x_j, particle_dim);
+    denom.powf(12.0) - denom.powf(6.0)
+}
+
+/// Get potential energy of a cluster of particles
+fn e_lj(particle: &Particle, _flat_dim: usize, particle_dims: &Vec<usize>) -> f64 {
+    // reshape particle
+
+    let mut sum = 0.0;
+    for i in 0..particle_dims[0] - 1 {
+        for j in (i + 1)..particle_dims[0] {
+            let true_i = i * particle_dims[1];
+            let true_j = j * particle_dims[1];
+            sum += v_ij(
+                particle[true_i..true_i + particle_dims[1]].to_vec(),
+                particle[true_j..true_j + particle_dims[1]].to_vec(),
+                particle_dims[1],
+            );
+        }
+    }
+    4.0 * sum
 }

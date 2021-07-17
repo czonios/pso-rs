@@ -129,10 +129,10 @@ impl PSO {
 
                 let x = self.mut_population[i][j] + self.model.config.lr * self.velocities[i][j];
                 // check bounds
-                if x > 2.5 {
-                    self.mut_population[i][j] = 2.5; // TODO dynamic bounds from config
-                } else if x < -2.5 {
-                    self.mut_population[i][j] = -2.5; // TODO dynamic bounds from config
+                if x > self.model.config.bounds.1 {
+                    self.mut_population[i][j] = self.model.config.bounds.1; // TODO dynamic bounds from config
+                } else if x < self.model.config.bounds.0 {
+                    self.mut_population[i][j] = self.model.config.bounds.0; // TODO dynamic bounds from config
                 } else {
                     self.mut_population[i][j] = x;
                 }
@@ -227,13 +227,14 @@ mod tests {
     fn it_works_for_lennard_james_potential_energy() {
         let dimensions = vec![4, 3];
         let population_size = 10;
-        let neighborhood_type = "lbest";
+        let neighborhood_type = NeighborhoodType::Lbest;
         let rho = 2;
         let alpha = 0.08;
         let lr = 0.5;
         let c1 = 250.0;
         let c2 = 0.8;
-        let config = Config::new(
+
+        let config = Config {
             dimensions,
             population_size,
             neighborhood_type,
@@ -242,8 +243,8 @@ mod tests {
             c1,
             c2,
             lr,
-        )
-        .unwrap();
+            ..Config::default()
+        };
 
         let model = Model::new(config);
         let mut pso = PSO::new(model);
