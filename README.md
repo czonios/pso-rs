@@ -1,5 +1,5 @@
-﻿![Crates.io](https://img.shields.io/crates/v/pso_rs)
-![docs.rs](https://img.shields.io/docsrs/pso-rs)
+﻿[![Crates.io](https://img.shields.io/crates/v/pso_rs)](https://crates.io/crates/pso-rs)
+[![docs.rs](https://img.shields.io/docsrs/pso-rs)](https://docs.rs/pso-rs/latest/pso_rs/)
 
 # pso-rs
 

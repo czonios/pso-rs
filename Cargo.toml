@@ -1,6 +1,6 @@
 [package]
 name = "pso-rs"
-version = "0.3.0"
+version = "0.3.1"
 authors = ["Christos Zonios <czonios@gmail.com>"]
 description = "An easy-to-use, simple Particle Swarm Optimization implementation in Rust"
 edition = "2018"
