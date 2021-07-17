@@ -8,9 +8,10 @@ fn it_computes_correct_minimum_rosenbrock() {
 
     let config = Config {
         dimensions: vec![2],
+        t_max: 1,
         ..Config::default()
     };
-    let pso = pso_rs::run(config, rosenbrock, |_| true).unwrap();
+    let pso = pso_rs::run(config, rosenbrock, None).unwrap();
 
     let mut model = pso.model;
 
@@ -59,7 +60,7 @@ fn it_computes_correct_minimum_e_lj() {
         ..Config::default()
     };
 
-    let pso = pso_rs::run(config, e_lj, |_| true).unwrap();
+    let pso = pso_rs::run(config, e_lj, Some(|_| true)).unwrap();
 
     let mut model = pso.model;
 

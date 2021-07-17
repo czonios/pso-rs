@@ -2,7 +2,7 @@
 //!
 //! [![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge)](https://crates.io/crates/pso-rs)
 //! [![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge)](https://docs.rs/pso-rs/latest/pso_rs/)
-//! [![GitHub](https://img.shields.io/github/license/czonios/pso-rs)](https://github.com/czonios/pso-rs/blob/master/LICENSE?style=for-the-badge)
+//! [![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE)
 //!
 //! It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation. It also has a nice progress bar curtesy of the [`indicatif`](https://crates.io/crates/indicatif) crate.
 //!
@@ -42,7 +42,7 @@
 //!
 //! let pso = pso_rs::run(config,
 //!                 objective_function,
-//!                 terminate).unwrap();
+//!                 Some(terminate)).unwrap();
 //!     
 //! let model = pso.model;
 //! println!("Model: {:?} ", model.get_f_best());
@@ -90,12 +90,15 @@
 //!     t_max: 1,
 //!     ..Config::default()
 //! };
-//! let pso = pso_rs::run(config, objective_function, |_| true).unwrap();
+//! let pso = pso_rs::run(config,
+//!                     objective_function,
+//!                     None).unwrap();
 //!
 //! // somewhere in main(), after running PSO as in the example:
 //! println!(
 //!     "Best found minimizer: {:#?} ",
-//!     reshape(&pso.model.get_x_best(), &pso.model.config.dimensions)
+//!     reshape(&pso.model.get_x_best(),
+//!         &pso.model.config.dimensions)
 //! );
 //! ```
 
@@ -116,11 +119,15 @@ use std::error::Error;
 pub fn run(
     config: Config,
     obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
-    terminate_f: fn(f64) -> bool,
+    terminate_f: Option<fn(f64) -> bool>,
 ) -> Result<PSO, Box<dyn Error>> {
     let model = Model::new(config, obj_f);
     let mut pso = PSO::new(model);
-    pso.run(terminate_f);
+    let term_condition = match terminate_f {
+        Some(terminate_f) => terminate_f,
+        None => |_| false,
+    };
+    pso.run(term_condition);
     Ok(pso)
 }
 

@@ -28,7 +28,7 @@ fn main() {
     };
     use std::time::Instant;
     let before = Instant::now();
-    match pso_rs::run(config, e_lj, |f_best| f_best - (-77.177043) < 1e-4) {
+    match pso_rs::run(config, e_lj, Some(|f_best| f_best - (-77.177043) < 1e-4)) {
         Ok(pso) => {
             println!("Elapsed time: {:.2?}", before.elapsed());
             pso.write_f_to_file("./best_f_trajectory.txt")

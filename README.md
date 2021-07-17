@@ -4,9 +4,9 @@ An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust.
 
 [![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge)](https://crates.io/crates/pso-rs)
 [![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge)](https://docs.rs/pso-rs/latest/pso_rs/)
-[![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE?style=for-the-badge)
+[![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE)
 
-It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation.
+It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation. It also has a nice progress bar curtesy of the [`indicatif`](https://crates.io/crates/indicatif) crate.
 
 The [example](#examples) below can get you started.
 In order to use it on your own optimization problem, you will need to define an objective function as it is defined in the [run](fn.run.html) function, and a [`Config`](model/struct.Config.html) object. See the [Notes](#notes) section for more tips.
@@ -17,9 +17,13 @@ In order to use it on your own optimization problem, you will need to define an 
 use pso_rs::model::*;
 
 // define objective function (Rosenbrock)
-fn objective_function(p: &Particle, _flat_dim: usize, _dimensions: &Vec<usize>) -> f64 {
+fn objective_function(p: &Particle,
+                _flat_dim: usize,
+                _dimensions: &Vec<usize>)
+    -> f64 {
     // x = p[0], y = p[1]
-    (1.0-p[0]).powf(2.0) + 100.0 * ((p[1]-p[0]).powf(2.0)).powf(2.0)
+    (1.0-p[0]).powf(2.0) + 100.0
+        * ((p[1]-p[0]).powf(2.0)).powf(2.0)
 }
 
 // define a termination condition
@@ -28,13 +32,20 @@ fn terminate(f_best: f64) -> bool {
 }
 
 let config = Config {
-    dimensions: vec![2],    // dimension shape of each particle
-    bounds: (-5.0, 10.0),   // problem bounds
-    t_max: 10000,           // maximum no. of objective function computations
-    ..Config::default()     // leave the rest of the params as default
+    // dimension shape of each particle
+    dimensions: vec![2],
+    // problem bounds in each dimension
+    bounds: (-5.0, 10.0),
+    // maximum no. of objective function computations
+    t_max: 10000,
+    // leave the rest of the params as default
+    ..Config::default()
 };
 
-let pso = pso_rs::run(config, objective_function, terminate).unwrap();
+let pso = pso_rs::run(config,
+                objective_function,
+                Some(terminate)).unwrap();
+
 let model = pso.model;
 println!("Model: {:?} ", model.get_f_best());
 ```
@@ -49,16 +60,9 @@ If you want, you can also create a custom `reshape` function, like this one for 
 ```rust
 use pso_rs::model::*;
 
-let config = Config {
-    dimensions: vec![20, 3],
-    bounds: (-2.5, 2.5),
-    t_max: 1,
-    ..Config::default()
-};
-
-let pso = pso_rs::run(config, objective_function, |_| true).unwrap();
-
-fn reshape(particle: &Particle, particle_dims: &Vec<usize>) -> Vec<Vec<f64>> {
+fn reshape(particle: &Particle,
+        particle_dims: &Vec<usize>)
+    -> Vec<Vec<f64>> {
     let mut reshaped_cluster = vec![];
     let mut i = 0;
     for _ in 0..particle_dims[0] {
@@ -72,18 +76,32 @@ fn reshape(particle: &Particle, particle_dims: &Vec<usize>) -> Vec<Vec<f64>> {
     reshaped_cluster
 }
 
-// somewhere in main(), after running PSO as in the example:
-println!(
-    "Best found minimizer: {:#?} ",
-    reshape(&pso.model.get_x_best(), &pso.model.config.dimensions)
-);
-
 // used in the objective function
-fn objective_function(p: &Particle, flat_dim: usize, dimensions: &Vec<usize>) -> f64 {
-     let reshaped_particle = reshape(p, dimensions);
+fn objective_function(p: &Particle,
+                _flat_dim: usize,
+                dimensions: &Vec<usize>)
+    -> f64 {
+    let _reshaped_particle = reshape(p, dimensions);
     /* Do stuff */
     0.0
 }
+
+let config = Config {
+    dimensions: vec![20, 3],
+    bounds: (-2.5, 2.5),
+    t_max: 1,
+    ..Config::default()
+};
+let pso = pso_rs::run(config,
+                    objective_function,
+                    None).unwrap();
+
+// somewhere in main(), after running PSO as in the example:
+println!(
+    "Best found minimizer: {:#?} ",
+    reshape(&pso.model.get_x_best(),
+        &pso.model.config.dimensions)
+);
 ```
 
 License: MIT
