@@ -28,13 +28,17 @@ fn main() {
 
     match pso_rs::run(config) {
         Ok(mut pso) => {
-            pso.run(pso.model.config.dimensions[0] * 100000, |f_best| {
+            use std::time::Instant;
+            let before = Instant::now();
+
+            pso.run(pso.model.config.dimensions[0] * 1e5 as usize, |f_best| {
                 f_best - (-77.177043) < 1e-4
             });
-            pso.write_to_file("./").unwrap_or_else(|err| {
-                eprintln!("Problem writing trajectories: {}.", err);
-                process::exit(1);
-            });
+            println!("Elapsed time: {:.2?}", before.elapsed());
+            // pso.write_to_file("./").unwrap_or_else(|err| {
+            //     eprintln!("Problem writing trajectories: {}.", err);
+            //     process::exit(1);
+            // });
             let mut model = pso.model;
             // model.population[0][0] = -0.3616353090;
             // model.population[0][1] = 0.0439914505;

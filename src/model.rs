@@ -1,11 +1,9 @@
-use rand::rngs::ThreadRng;
-use rand::Rng;
-
+use rand::{thread_rng, Rng};
+use rayon::prelude::*;
 pub type Particle = Vec<f64>;
 pub type Population = Vec<Particle>;
 
 pub struct Model {
-    pub rng: ThreadRng,
     pub config: Config,
     pub flat_dim: usize,
     pub population: Population,
@@ -18,7 +16,7 @@ pub struct Model {
 impl Model {
     pub fn new(config: Config) -> Model {
         // init population
-        let mut rng = rand::thread_rng();
+        let mut rng = thread_rng();
         let mut flat_dim = 1;
         for d in config.dimensions.clone() {
             flat_dim *= d;
@@ -35,7 +33,6 @@ impl Model {
         let x_best = population[0].clone();
         let f_best = population_f_scores[0].clone();
         let mut model = Model {
-            rng,
             config,
             flat_dim,
             population,
@@ -57,10 +54,13 @@ impl Model {
     ///    float[]: values of the objective function for the input clusters
     pub fn get_f_values(&mut self) -> Vec<f64> {
         // find the objective function value for each member of the population
-        for (i, particle) in self.population.iter().enumerate() {
-            let f_score = (self.obj_f)(particle, self.flat_dim, &self.config.dimensions);
-            self.population_f_scores[i] = f_score;
-        }
+        let iter = self.population.par_iter();
+        self.population_f_scores = iter
+            .map(|particle| {
+                (self.obj_f)(particle, self.flat_dim, &self.config.dimensions)
+                // self.population_f_scores[i] = f_score;
+            })
+            .collect();
         // update best
         let mut f_best = self.population_f_scores[0];
         let mut x_best_index = 0;

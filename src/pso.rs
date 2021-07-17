@@ -1,6 +1,7 @@
 use crate::model::*;
 use indicatif::{ProgressBar, ProgressStyle};
-use rand::Rng;
+use rand::{thread_rng, Rng};
+
 use std::error::Error;
 use std::fs::File;
 use std::io::Write;
@@ -19,7 +20,7 @@ pub struct PSO {
 }
 
 impl PSO {
-    pub fn new(mut model: Model) -> PSO {
+    pub fn new(model: Model) -> PSO {
         let phi = model.config.c1 + model.config.c2;
         let phi_squared = phi.powf(2.0);
         let tmp = phi_squared - (4.0 * phi);
@@ -58,12 +59,13 @@ impl PSO {
         }
 
         // initialize
+        let mut rng = thread_rng();
         let mut_population = model.population.clone();
         let mut velocities = vec![];
         for _ in 0..model.config.population_size {
             let mut tmp = vec![];
             for _ in 0..model.flat_dim {
-                tmp.push(model.rng.gen_range(-1.0..1.0));
+                tmp.push(rng.gen_range(-1.0..1.0));
             }
             velocities.push(tmp);
         }
@@ -104,11 +106,13 @@ impl PSO {
     }
 
     fn update_velocity_and_pos(&mut self) {
+        let mut rng = thread_rng();
+
         for i in 0..self.model.config.population_size {
             let lbest = &self.neigh_population[self.local_best(i)];
             for j in 0..self.model.flat_dim {
-                let r1 = self.model.rng.gen_range(-1.0..1.0);
-                let r2 = self.model.rng.gen_range(-1.0..1.0);
+                let r1 = rng.gen_range(-1.0..1.0);
+                let r2 = rng.gen_range(-1.0..1.0);
                 let cog = self.model.config.c1
                     * r1
                     * (self.neigh_population[i][j] - self.mut_population[i][j]);
