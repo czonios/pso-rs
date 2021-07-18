@@ -30,14 +30,16 @@ impl Model {
             flat_dim *= d;
         }
         let mut population: Population = vec![];
+
         for _ in 0..config.population_size {
             let mut particle: Particle = vec![];
-            for _ in 0..flat_dim {
-                particle.push(rng.gen_range(config.bounds.0..config.bounds.1));
+            for flat_i in 0..flat_dim {
+                let true_i = flat_i % config.dimensions[config.dimensions.len() - 1];
+                particle.push(rng.gen_range(config.bounds[true_i].0..config.bounds[true_i].1));
             }
             population.push(particle);
         }
-        let population_f_scores = vec![0.0; config.population_size];
+        let population_f_scores = vec![f64::INFINITY; config.population_size];
         let x_best = population[0].clone();
         let f_best = population_f_scores[0].clone();
         let mut model = Model {
@@ -68,16 +70,16 @@ impl Model {
             })
             .collect();
         // update best
-        let mut f_best = self.population_f_scores[0];
-        let mut x_best_index = 0;
+        let mut f_best = self.f_best;
+        let mut x_best = self.x_best.clone();
         for (index, &score) in self.population_f_scores.iter().enumerate() {
             if score < f_best {
                 f_best = score;
-                x_best_index = index;
+                x_best = self.population[index].clone();
             }
         }
         self.f_best = f_best;
-        self.x_best = self.population[x_best_index].clone();
+        self.x_best = x_best;
         self.population_f_scores.to_owned()
     }
 
@@ -105,7 +107,7 @@ pub struct Config {
     pub c1: f64,
     pub c2: f64,
     pub lr: f64,
-    pub bounds: (f64, f64),
+    pub bounds: Vec<(f64, f64)>,
     pub t_max: usize,
 }
 
@@ -126,7 +128,7 @@ impl Default for Config {
             lr: 0.5,
             c1: 2.05,
             c2: 2.05,
-            bounds: (-1.0, 1.0),
+            bounds: vec![(-1.0, 1.0); 2],
             t_max: 1000,
         }
     }

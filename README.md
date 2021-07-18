@@ -6,12 +6,12 @@ An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust.
 [![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge)](https://docs.rs/pso-rs/latest/pso_rs/)
 [![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE)
 
-It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation. It also has a nice progress bar curtesy of the [`indicatif`](https://crates.io/crates/indicatif) crate.
-
-The [examples](#examples) below can get you started.
-In order to use it in your own optimization problem, you will need to define an objective function as it is defined in the [run](fn.run.html) function, and a [`Config`](model/struct.Config.html) object. See the [Notes](#notes) section for more tips. Below is a screenshot of PSO running, attempting to minimize the Lennard-Jones potential energy in a cluster of 20 molecules:
+It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation. It also has a nice progress bar curtesy of the [`indicatif`](https://crates.io/crates/indicatif) crate. Below is a screenshot of PSO running, attempting to minimize the Lennard-Jones potential energy in a cluster of 20 molecules:
 
 ![Screenshot](https://raw.githubusercontent.com/czonios/pso-rs/master/screenshots/pbar.gif)
+
+The [examples](#examples) below can get you started.
+In order to use it in your own optimization problem, you will need to define an objective function as it is defined in the [run](fn.run.html) function, and a [`Config`](model/struct.Config.html) object. See the [Notes](#notes) section for more tips.
 
 ## Examples
 
@@ -41,7 +41,7 @@ let config = Config {
     // dimension shape of each particle
     dimensions: vec![2],
     // problem bounds in each dimension
-    bounds: (-5.0, 10.0),
+    bounds: vec![(-5.0, 10.0); 2],
     // maximum no. of objective function computations
     t_max: 10000,
     // leave the rest of the params as default
@@ -78,7 +78,7 @@ fn objective_function(
 
 let config = Config {
     dimensions: vec![2],
-    bounds: (-5.0, 10.0),
+    bounds: vec![(-5.0, 10.0); 2],
     t_max: 10000,
     ..Config::default()
 };
@@ -135,7 +135,7 @@ fn objective_function(
 
 let config = Config {
     dimensions: vec![20, 3],
-    bounds: (-2.5, 2.5),
+    bounds: vec![(-2.5, 2.5); 3],
     t_max: 1,
     ..Config::default()
 };

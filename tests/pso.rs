@@ -9,7 +9,6 @@ fn it_computes_correct_minimum_rosenbrock_2d() {
     }
 
     let config = Config {
-        dimensions: vec![2],
         t_max: 1,
         population_size: 1,
         ..Config::default()
@@ -42,6 +41,7 @@ fn it_computes_correct_minimum_rosenbrock_3d() {
     let config = Config {
         dimensions: vec![3],
         t_max: 1,
+        bounds: vec![(-5.0, 10.0); 3],
         population_size: 1,
         ..Config::default()
     };
@@ -99,6 +99,7 @@ fn it_computes_correct_minimum_e_lj() {
     }
     let config = Config {
         dimensions: vec![4, 3],
+        bounds: vec![(-2.5, 2.5); 3],
         population_size: 1,
         ..Config::default()
     };

@@ -39,7 +39,7 @@
 //!     // dimension shape of each particle
 //!     dimensions: vec![2],
 //!     // problem bounds in each dimension
-//!     bounds: (-5.0, 10.0),
+//!     bounds: vec![(-5.0, 10.0); 2],
 //!     // maximum no. of objective function computations
 //!     t_max: 10000,
 //!     // leave the rest of the params as default
@@ -76,7 +76,7 @@
 //!
 //! let config = Config {
 //!     dimensions: vec![2],
-//!     bounds: (-5.0, 10.0),
+//!     bounds: vec![(-5.0, 10.0); 2],
 //!     t_max: 10000,
 //!     ..Config::default()
 //! };
@@ -133,7 +133,7 @@
 //!
 //! let config = Config {
 //!     dimensions: vec![20, 3],
-//!     bounds: (-2.5, 2.5),
+//!     bounds: vec![(-2.5, 2.5); 3],
 //!     t_max: 1,
 //!     ..Config::default()
 //! };
@@ -171,6 +171,7 @@ pub fn run(
     obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
     terminate_f: Option<fn(f64) -> bool>,
 ) -> Result<PSO, Box<dyn Error>> {
+    assert_config(&config)?;
     let mut pso = init(config, obj_f).unwrap();
     let term_condition = match terminate_f {
         Some(terminate_f) => terminate_f,
@@ -186,10 +187,24 @@ pub fn run(
 pub fn init(
     config: Config,
     obj_f: fn(&Particle, usize, &Vec<usize>) -> f64,
-) -> Result<PSO, Box<dyn Error>> {
+) -> Result<PSO, &'static str> {
+    assert_config(&config)?;
     let model = Model::new(config, obj_f);
     let pso = PSO::new(model);
     Ok(pso)
+}
+
+fn assert_config(config: &Config) -> Result<(), &'static str> {
+    if config.c1 + config.c2 < 4.0 {
+        return Err("c1 + c2 must be greater than 4");
+    }
+    if config.dimensions.len() == 0 {
+        return Err("dimensions must be set");
+    }
+    if config.bounds.len() != config.dimensions[config.dimensions.len() - 1] {
+        return Err("bounds vector must have the same length as the last dimension of the model");
+    }
+    Ok(())
 }
 
 #[cfg(test)]
