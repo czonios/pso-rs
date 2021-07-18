@@ -15,10 +15,10 @@ pub struct PSO {
     pub model: Model,
     neighborhoods: Vec<Vec<usize>>,
     velocities: Population,
-    neigh_population: Population,
-    best_f_values: Vec<f64>,
-    best_f_trajectory: Vec<f64>,
-    best_x_trajectory: Vec<Particle>,
+    pub neigh_population: Population,
+    pub best_f_values: Vec<f64>,
+    pub best_f_trajectory: Vec<f64>,
+    pub best_x_trajectory: Vec<Particle>,
 }
 
 impl PSO {

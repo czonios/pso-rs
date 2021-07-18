@@ -153,7 +153,7 @@
 //! ```
 
 pub mod model;
-mod pso;
+pub mod pso;
 
 pub use model::*;
 
