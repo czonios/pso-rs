@@ -9,7 +9,7 @@
 //! ![Screenshot](https://raw.githubusercontent.com/czonios/pso-rs/master/screenshots/pbar.gif)
 //!
 //! The [examples](#examples) below can get you started.
-//! In order to use it in your own optimization problem, you will need to define an objective function as it is defined in the [run](fn.run.html) function, and a [`Config`](model/struct.Config.html) object. See the [Notes](#notes) section for more tips.
+//! In order to use it in your own optimization problem, you will need to define an objective function as it is defined in the [run](https://docs.rs/pso-rs/latest/pso_rs/fn.run.html) function, and a [`Config`](https://docs.rs/pso-rs/latest/pso_rs/model/struct.Config.html) object. See the [Notes](#notes) section for more tips.
 //!
 //! # Examples
 //!
