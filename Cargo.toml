@@ -10,6 +10,7 @@ homepage = "https://github.com/czonios/pso-rs"
 documentation = "https://docs.rs/pso-rs/latest/pso_rs/"
 exclude = [
     "src/bin",
+    "screenshots"
 ]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
