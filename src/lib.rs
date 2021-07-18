@@ -3,6 +3,7 @@
 //! [![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge)](https://crates.io/crates/pso-rs)
 //! [![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge)](https://docs.rs/pso-rs/latest/pso_rs/)
 //! [![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE)
+//! [![Website](https://img.shields.io/website?style=for-the-badge&url=https%3A%2F%2Fczonios.github.io%2Fpso-rs%2F)](https://czonios.github.io/pso-rs/)
 //!
 //! It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation. It also has a nice progress bar curtesy of the [`indicatif`](https://crates.io/crates/indicatif) crate. Below is a screenshot of PSO running, attempting to minimize the Lennard-Jones potential energy in a cluster of 20 molecules:
 //!
