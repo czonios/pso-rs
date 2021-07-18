@@ -43,6 +43,7 @@ fn main() {
                 });
             let model = pso.model;
             println!("Model: {:?} ", model.get_f_best());
+            reshape(&model.get_x_best(), &model.config.dimensions);
         }
         Err(e) => {
             eprintln!("Could not construct PSO: {}", e);
