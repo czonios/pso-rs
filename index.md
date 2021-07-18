@@ -1,37 +1,51 @@
-## Welcome to GitHub Pages
+[![Crates.io](https://img.shields.io/crates/v/pso_rs?style=for-the-badge)](https://crates.io/crates/pso-rs)
+[![docs.rs](https://img.shields.io/docsrs/pso-rs?style=for-the-badge)](https://docs.rs/pso-rs/latest/pso_rs/)
+[![GitHub](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE)
 
-You can use the [editor on GitHub](https://github.com/czonios/pso-rs/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+![Screenshot](https://raw.githubusercontent.com/czonios/pso-rs/master/screenshots/pbar.gif)
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+The [example](#example) below can get you started.
+In order to use it in your own optimization problem, you will need to define an objective function as it is defined in the [`run`](https://docs.rs/pso-rs/latest/pso_rs/fn.run.html) function, and a [`Config`](https://docs.rs/pso-rs/latest/pso_rs/model/struct.Config.html) object. See the [documentation](https://docs.rs/pso-rs/latest/pso_rs/) for more information.
 
-### Markdown
+## Example
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+```rust
+use pso_rs::*;
 
-```markdown
-Syntax highlighted code block
+// define objective function (d-dimensional Rosenbrock)
+fn objective_function(
+    p: &Particle,
+    _flat_dim: usize,
+    dimensions: &Vec<usize>
+) -> f64 {
+    (0..dimensions[0] - 1).map(|i| {
+        100.0 * ((p[i+1]-p[i]).powf(2.0)).powf(2.0)
+            + (1.0-p[i]).powf(2.0)
+    }).sum()
+}
 
-# Header 1
-## Header 2
-### Header 3
+// define a termination condition (optional)
+fn terminate(f_best: f64) -> bool {
+    f_best - (0.0) < 1e-4
+}
 
-- Bulleted
-- List
+let config = Config {
+    // dimension shape of each particle
+    dimensions: vec![2],
+    // problem bounds in each dimension
+    bounds: vec![(-5.0, 10.0); 2],
+    // maximum no. of objective function computations
+    t_max: 10000,
+    // leave the rest of the params as default
+    ..Config::default()
+};
 
-1. Numbered
-2. List
+let pso = pso_rs::run(
+    config,
+    objective_function,
+    Some(terminate)
+).unwrap();
 
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+let model = pso.model;
+println!("Model: {:?} ", model.get_f_best());
 ```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/czonios/pso-rs/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
