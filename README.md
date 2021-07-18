@@ -98,6 +98,14 @@ println!("Model: {:?} ", model.get_f_best());
 
 ## Notes
 
+## Performance
+
+This implementation uses a flat vector (`Vec<f64>`) to represent any d-dimensional problem (see the [Optimization Problem Dimensionality](#optimization-problem-dimensionality) section). This means that the vector has an O(1) access time, and can be cached for fast access, similarly to a static array.
+
+The computation of the objective function for each particle is performed in parallel, as it is computationally expensive for any non-trivial problem. In the future, complete swarms will be able to be run in parallel and optionally communicate their best found positions by passing messages.
+
+## Optimization Problem Dimensionality
+
 Even though you can have particles of any shape and size, as long as each item is `f64`, `pso_rs` represents each particle as a flat vector: `Vec<f64>`.
 
 This means that, for example, in order to find clusters of 20 molecules in 3D space that minimize the [Lennard-Jones potential energy](https://en.wikipedia.org/wiki/Lennard-Jones_potential), you can define `dimensions` as (20, 3).
