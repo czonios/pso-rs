@@ -62,13 +62,23 @@ impl Model {
     /// Uses the rayon crate for parallel computation
     pub fn get_f_values(&mut self) -> Vec<f64> {
         // find the objective function value for each member of the population
-        let iter = self.population.par_iter();
-        self.population_f_scores = iter
-            .map(|particle| {
-                (self.obj_f)(particle, self.flat_dim, &self.config.dimensions)
-                // self.population_f_scores[i] = f_score;
-            })
-            .collect();
+        if self.config.parallelize {
+            let iter = self.population.par_iter();
+            self.population_f_scores = iter
+                .map(|particle| {
+                    (self.obj_f)(particle, self.flat_dim, &self.config.dimensions)
+                    // self.population_f_scores[i] = f_score;
+                })
+                .collect();
+        } else {
+            let iter = self.population.iter();
+            self.population_f_scores = iter
+                .map(|particle| {
+                    (self.obj_f)(particle, self.flat_dim, &self.config.dimensions)
+                    // self.population_f_scores[i] = f_score;
+                })
+                .collect();
+        }
         // update best
         let mut f_best = self.f_best;
         let mut x_best = self.x_best.clone();
@@ -110,6 +120,7 @@ pub struct Config {
     pub bounds: Vec<(f64, f64)>,
     pub t_max: usize,
     pub progress_bar: bool,
+    pub parallelize: bool,
 }
 
 impl Config {
@@ -132,6 +143,7 @@ impl Default for Config {
             bounds: vec![(-1.0, 1.0); 2],
             t_max: 1000,
             progress_bar: true,
+            parallelize: true,
         }
     }
 }

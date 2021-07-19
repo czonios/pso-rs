@@ -1,6 +1,38 @@
 use pso_rs::*;
 
 #[test]
+fn it_runs_non_parallel() {
+    fn rosenbrock(p: &Particle, _flat_dim: usize, dimensions: &Vec<usize>) -> f64 {
+        (0..dimensions[0] - 1)
+            .map(|i| 100.0 * ((p[i + 1] - p[i]).powf(2.0)).powf(2.0) + (1.0 - p[i]).powf(2.0))
+            .sum()
+    }
+
+    let config = Config {
+        t_max: 1,
+        population_size: 1,
+        progress_bar: false,
+        parallelize: false,
+        ..Config::default()
+    };
+    let pso = pso_rs::run(config, rosenbrock, None).unwrap();
+
+    let mut model = pso.model;
+
+    model.population[0][0] = 2.0;
+    model.population[0][1] = -2.0;
+    model.get_f_values();
+
+    assert_ne!(model.get_f_best(), 0.0);
+
+    model.population[0][0] = 1.0;
+    model.population[0][1] = 1.0;
+    model.get_f_values();
+
+    assert_eq!(model.get_f_best(), 0.0);
+}
+
+#[test]
 fn it_computes_correct_minimum_rosenbrock_2d() {
     fn rosenbrock(p: &Particle, _flat_dim: usize, dimensions: &Vec<usize>) -> f64 {
         (0..dimensions[0] - 1)
