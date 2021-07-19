@@ -11,6 +11,7 @@ fn it_computes_correct_minimum_rosenbrock_2d() {
     let config = Config {
         t_max: 1,
         population_size: 1,
+        progress_bar: false,
         ..Config::default()
     };
     let pso = pso_rs::run(config, rosenbrock, None).unwrap();
@@ -43,6 +44,7 @@ fn it_computes_correct_minimum_rosenbrock_3d() {
         t_max: 1,
         bounds: vec![(-5.0, 10.0); 3],
         population_size: 1,
+        progress_bar: false,
         ..Config::default()
     };
     let pso = pso_rs::run(config, rosenbrock, None).unwrap();
@@ -101,6 +103,7 @@ fn it_computes_correct_minimum_e_lj() {
         dimensions: vec![4, 3],
         bounds: vec![(-2.5, 2.5); 3],
         population_size: 1,
+        progress_bar: false,
         ..Config::default()
     };
 

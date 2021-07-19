@@ -109,6 +109,7 @@ pub struct Config {
     pub lr: f64,
     pub bounds: Vec<(f64, f64)>,
     pub t_max: usize,
+    pub progress_bar: bool,
 }
 
 impl Config {
@@ -130,6 +131,7 @@ impl Default for Config {
             c2: 2.05,
             bounds: vec![(-1.0, 1.0); 2],
             t_max: 1000,
+            progress_bar: true,
         }
     }
 }
