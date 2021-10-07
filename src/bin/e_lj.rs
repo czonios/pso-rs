@@ -42,8 +42,11 @@ fn main() {
                     process::exit(1);
                 });
             let model = pso.model;
-            println!("Model: {:?} ", model.get_f_best());
-            reshape(&model.get_x_best(), &model.config.dimensions);
+            println!("Found minimum: {:#?} ", model.get_f_best());
+            println!(
+                "Minimizer: {:#?} ",
+                reshape(&model.get_x_best(), &model.config.dimensions)
+            );
         }
         Err(e) => {
             eprintln!("Could not construct PSO: {}", e);

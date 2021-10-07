@@ -13,8 +13,8 @@ fn main() {
     let pso = pso_rs::run(config, sum_squares, None).unwrap();
     println!("Elapsed time: {:.2?}", before.elapsed());
     let model = pso.model;
-    println!("Best f: {:#?} ", model.get_f_best());
-    println!("Best x: {:#?} ", model.get_x_best());
+    println!("Found minimum: {:#?} ", model.get_f_best());
+    println!("Found minimizer: {:#?} ", model.get_x_best());
 }
 
 fn sum_squares(p: &Particle, _flat_dim: usize, dimensions: &Vec<usize>) -> f64 {
