@@ -1,8 +1,10 @@
 use pso_rs::*;
 use std::process;
+const N_PARTICLES:usize = 20;
+
 
 fn main() {
-    let dimensions = vec![20, 3];
+    let dimensions = vec![N_PARTICLES, 3];
     let population_size = 10;
     let neighborhood_type = NeighborhoodType::Lbest;
     let rho = 2;
@@ -28,7 +30,7 @@ fn main() {
     };
     use std::time::Instant;
     let before = Instant::now();
-    match pso_rs::run(config, e_lj, Some(|f_best| f_best - (-77.177043) < 1e-4)) {
+    match pso_rs::run(config, e_lj, None) {
         Ok(pso) => {
             println!("Elapsed time: {:.2?}", before.elapsed());
             pso.write_f_to_file("./best_f_trajectory.txt")

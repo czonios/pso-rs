@@ -7,6 +7,8 @@ An easy-to-use, simple Particle Swarm Optimization (PSO) implementation in Rust.
 [![Website](https://img.shields.io/website?style=for-the-badge&url=https%3A%2F%2Fczonios.github.io%2Fpso-rs%2F)](https://czonios.github.io/pso-rs/)
 [![License](https://img.shields.io/github/license/czonios/pso-rs?style=for-the-badge)](https://github.com/czonios/pso-rs/blob/master/LICENSE)
 
+**Works in Rust 2021 edition**
+
 It uses the [`rand`](https://crates.io/crates/rand) crate for random initialization, and the [`rayon`](https://crates.io/crates/rayon) crate for parallel objective function computation. It also has a nice progress bar curtesy of the [`indicatif`](https://crates.io/crates/indicatif) crate. Below is a screenshot of PSO running, attempting to minimize the Lennard-Jones potential energy in a cluster of 20 molecules:
 
 ![Screenshot](https://raw.githubusercontent.com/czonios/pso-rs/master/screenshots/pbar.gif)
@@ -35,7 +37,7 @@ fn objective_function(
 
 // define a termination condition (optional)
 fn terminate(f_best: f64) -> bool {
-    f_best - (0.0) < 1e-4
+    f_best < 1e-4
 }
 
 let config = Config {
@@ -163,4 +165,42 @@ println!(
 );
 ```
 
-License: MIT
+## Meta
+
+Christos A. Zonios – [@czonios](https://czonios.github.io) – c.zonios (at) uoi (dot) gr
+
+Distributed under the MIT license. See ``LICENSE`` for more information.
+
+[https://github.com/czonios/pso-rs](https://github.com/czonios/pso-rs)
+
+## Contributing
+
+1. Fork it (<https://github.com/czonios/pso-rs/fork>)
+2. Create your feature branch (`git checkout -b feature/fooBar`)
+3. Run the [tests](#tests)
+4. Commit your changes (`git commit -am 'Add some fooBar'`)
+5. Push to the branch (`git push origin feature/fooBar`)
+6. Create a new Pull Request
+
+### Testing:
+
+```sh
+cargo test
+cargo test --doc
+```
+
+When developing a new feature, it might be useful to have an optimization problem for quick feedback. You can use one of the example optimization problems (found in the `src/bin` directory) as follows:
+
+```sh
+# Rosenbrock function (3 dimensional)
+cargo run --bin=main
+# For profiling use --release flag
+# You can change the number of dimensions in the file 
+# src/bin/main.rs
+cargo run --release --bin=main
+
+# Lennard-Jones potential for a N-particle system (N=20)
+cargo run --bin=e_lj
+cargo run --release --bin=e_lj
+```
+
