@@ -58,7 +58,8 @@ let pso = pso_rs::run(
 ).unwrap();
 
 let model = pso.model;
-println!("Model: {:?} ", model.get_f_best());
+println!("Found minimum: {:#?} ", model.get_f_best());
+println!("Found minimizer: {:#?} ", model.get_x_best());
 ```
 
 ### Initialize PSO for later execution
@@ -95,7 +96,8 @@ let mut pso = pso_rs::init(
 pso.run(|_| false);
 
 let model = pso.model;
-println!("Model: {:?} ", model.get_f_best());
+println!("Found minimum: {:#?} ", model.get_f_best());
+println!("Found minimizer: {:#?} ", model.get_x_best());
 ```
 
 ## Notes
